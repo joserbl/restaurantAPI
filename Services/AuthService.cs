@@ -27,7 +27,17 @@ namespace RestaurantAPI.Services
 
         public string GenerateJwtToken(string username, string role)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your-256-bit-secret-key-here-must-be-long-enough-for-security"));
+            // var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your-256-bit-secret-key-here-must-be-long-enough-for-security"));
+            // Get the JWT key from configuration instead of hardcoding it
+            var jwtKey = _configuration["Jwt:Key"];
+
+            if (string.IsNullOrEmpty(jwtKey))
+            {
+                throw new InvalidOperationException("JWT Key is not configured");
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
@@ -104,8 +114,8 @@ namespace RestaurantAPI.Services
         {
             return HashPassword(password) == hash;
         }
-        
 
-        
+
+
     }
 }
